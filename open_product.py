@@ -19,7 +19,7 @@ def completion_chat(product="bread"):
                                 Generate a correct JSON object that will process with json.loads() and provide ' instead of ` in python with the following structure:
                                 {{
                                     "query": "The product name formatted for a Google image search query",
-                                    "description": "A professional, and serious description of the product for a store."
+                                    "description": "A professional, and serious description of the product for a store. Also add details about it's usage and in what cases are necessary."
                                 }}
 
                                 Product: {product}
@@ -37,7 +37,9 @@ def completion_chat(product="bread"):
     print(type(completion_text))
 
     # Optionally parse the JSON into a Python dictionary
-    result = ""
+    result = {
+        "query": ""
+    }
     if(completion_text):
         result = json.loads(completion_text)
 

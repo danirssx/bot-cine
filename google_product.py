@@ -7,59 +7,58 @@ import requests
 import re
 import os
 
-query = "TETRA® POND DEBRIS HANDLING PUMP – 3517 GPH – FOR PONDS UP TO 4000 GALLONS"
-save_folder = "images"
-
 # Google Custom Search API endpoint
 url = f"https://www.googleapis.com/customsearch/v1"
+save_folder = "images"
 
-params = {
-    "q": query,
-    "cx": SEARCH_ENGINE_ID,
-    "key": GOOGLE_API_KEY,
-    "search_type": "image",
-    "num": 2
-}
+def google_images(query=""):
+    params = {
+        "q": query,
+        "cx": SEARCH_ENGINE_ID,
+        "key": GOOGLE_API_KEY,
+        "search_type": "image",
+        "num": 2
+    }
 
-response = requests.get(url, params=params)
+    response = requests.get(url, params=params)
 
-if response.status_code == 200:
-    data = response.json()
+    if response.status_code == 200:
+        data = response.json()
 
-    if "items" in data:
-        images = []
-        for index, item in enumerate(data["items"]):
-            image_url = item["link"]
+        if "items" in data:
+            images = []
+            for index, item in enumerate(data["items"]):
+                image_url = item["link"]
 
-            image_response = requests.get(image_url)
+                image_response = requests.get(image_url)
 
-            if image_response.status_code == 200:
+                if image_response.status_code == 200:
 
-                image = Image.open(BytesIO(image_response.content))
+                    image = Image.open(BytesIO(image_response.content))
 
-                if image.mode == "RGBA":
-                    background = Image.new("RGB", image.size, (255, 255, 255))  # White background
-                    background.paste(image, mask=image.split()[3])  # Use alpha channel as mask
-                    image = background
+                    if image.mode == "RGBA":
+                        background = Image.new("RGB", image.size, (255, 255, 255))  # White background
+                        background.paste(image, mask=image.split()[3])  # Use alpha channel as mask
+                        image = background
 
-                # Sanitize
-                safe_query = re.sub(r'[^\w\s-]', '', query).replace(" ", "_")
-                file_name = f"{safe_query}_{index + 1}.jpg"
-                file_path = os.path.join(save_folder, file_name)
+                    # Sanitize
+                    safe_query = re.sub(r'[^\w\s-]', '', query).replace(" ", "_")
+                    file_name = f"{safe_query}_{index + 1}.jpg"
+                    file_path = os.path.join(save_folder, file_name)
 
-                # Save
-                image.save(file_path)
+                    # Save
+                    image.save(file_path)
 
-                images.append(file_name)
-                image.show()
+                    images.append(file_name)
+                    image.show()
 
-                print(image_url)
+                    print(image_url)
 
-            else:
-                print("Failed to download thge image")
+                else:
+                    print("Failed to download thge image")
+
+        else:
+            print("No image founded")
 
     else:
-        print("No image founded")
-
-else:
-    print(f"Error: {response.status_code}, {response.text}")
+        print(f"Error: {response.status_code}, {response.text}")
